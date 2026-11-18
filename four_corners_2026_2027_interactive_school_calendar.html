@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Four Corners Charter & Upper School | 2026–2027 Interactive Calendar</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Plus Jakarta Sans & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.98)' },
+                            '100%': { opacity: '1', transform: 'scale(1)' },
+                        },
+                        slideUp: {
+                            '0%': { opacity: '0', transform: 'translateY(14px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom smooth scrollbars and glassmorphism utilities */
+        body {
+            background: radial-gradient(circle at top left, #f8fafc, #eff6ff 50%, #f1f5f9 100%);
+            min-height: 100vh;
+            color: #0f172a;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 10px 30px -10px rgba(15, 23, 42, 0.06), 0 4px 10px -4px rgba(15, 23, 42, 0.03);
+        }
+        .day-cell {
+            transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .day-cell:hover:not(.empty-cell) {
+            transform: translateY(-2px) scale(1.04);
+            z-index: 10;
+            box-shadow: 0 8px 16px -4px rgba(15, 23, 42, 0.12);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        /* Today Ring Pulse */
+        @keyframes ringPulse {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+            70% { box-shadow: 0 0 0 7px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+        .today-indicator {
+            animation: ringPulse 2.2s infinite;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-900 pb-16">
+
+    <!-- Top Countdown & School Header Banner -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-slate-200/70">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <!-- Branding -->
+                <div class="flex items-center gap-3.5">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-slate-800 via-slate-900 to-indigo-950 text-white flex items-center justify-center shadow-md shrink-0">
+                        <i data-lucide="graduation-cap" class="w-6 h-6 text-amber-400"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <h1 class="font-display font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight">
+                                Four Corners Charter & Upper School
+                            </h1>
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/70">
+                                2026–2027
+                            </span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium">
+                            Interactive Student Holiday & Academic Schedule
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Dynamic Next Break Countdown Pill -->
+                <div id="countdownBanner" class="flex items-center justify-between sm:justify-start gap-3 bg-gradient-to-r from-rose-500 via-pink-600 to-rose-600 text-white px-4 py-2.5 rounded-2xl shadow-lg shadow-rose-500/20 animate-fade-in">
+                    <div class="flex items-center gap-2.5">
+                        <div class="p-1.5 bg-white/20 rounded-xl backdrop-blur-sm">
+                            <i data-lucide="sparkles" class="w-4 h-4 text-amber-200"></i>
+                        </div>
+                        <div>
+                            <div class="text-[11px] uppercase tracking-wider font-bold text-rose-100 leading-none mb-0.5">
+                                Next Days Off Countdown
+                            </div>
+                            <div id="countdownTitle" class="text-sm font-bold leading-tight">
+                                Thanksgiving Break (Nov 23–27)
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-1.5 pl-3 border-l border-white/25 shrink-0">
+                        <span id="countdownDays" class="font-display font-extrabold text-xl sm:text-2xl leading-none">6</span>
+                        <span class="text-xs font-semibold text-rose-100 uppercase">Days<br>Away</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Control Bar: View Switcher & Interactive Category Filter Pills -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <div class="glass-panel rounded-3xl p-4 sm:p-5 mb-6 animate-slide-up">
+            <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+                
+                <!-- View Switcher + Quick List Toggle -->
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <div class="inline-flex p-1 rounded-2xl bg-slate-100/90 border border-slate-200/80 shadow-inner">
+                        <button id="btnFullYear" onclick="switchView('year')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-white text-slate-900 shadow-sm">
+                            <i data-lucide="layout-grid" class="w-4 h-4 text-indigo-600"></i>
+                            <span>Full Year Overview</span>
+                        </button>
+                        <button id="btnMonthly" onclick="switchView('month')" class="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900">
+                            <i data-lucide="calendar" class="w-4 h-4 text-indigo-600"></i>
+                            <span>Monthly Focus</span>
+                        </button>
+                    </div>
+
+                    <button onclick="toggleSummaryDrawer()" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-sm font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80 transition-all shadow-sm">
+                        <i data-lucide="list-checks" class="w-4 h-4"></i>
+                        <span>All Days Off List</span>
+                        <span class="ml-0.5 px-2 py-0.5 text-xs font-bold bg-rose-600 text-white rounded-full">12</span>
+                    </button>
+                </div>
+
+                <!-- Category Filter Pills -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-1 xl:pb-0 custom-scrollbar" id="filterBar">
+                    <button onclick="setFilter('all')" data-filter="all" class="filter-pill active-pill shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-900 text-white shadow-sm">
+                        <span>All Events</span>
+                    </button>
+                    <button onclick="setFilter('holiday')" data-filter="holiday" class="filter-pill shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-700 border border-slate-200 hover:border-rose-300 hover:bg-rose-50/50">
+                        <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                        <span>Days Off / Holidays</span>
+                    </button>
+                    <button onclick="setFilter('makeup')" data-filter="makeup" class="filter-pill shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-700 border border-slate-200 hover:border-amber-300 hover:bg-amber-50/50">
+                        <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                        <span>Emergency Make-Up</span>
+                    </button>
+                    <button onclick="setFilter('milestone')" data-filter="milestone" class="filter-pill shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-700 border border-slate-200 hover:border-emerald-300 hover:bg-emerald-50/50">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                        <span>First / Last Day</span>
+                    </button>
+                    <button onclick="setFilter('grading')" data-filter="grading" class="filter-pill shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 hover:bg-indigo-50/50">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                        <span>Grading & Reports</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Color-Coded Legend & Helper Tip -->
+            <div class="mt-4 pt-3.5 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+                <div class="flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-1.5 font-medium">
+                        <span class="w-3 h-3 rounded-md bg-rose-500 shadow-sm"></span>
+                        <span>No School (Student Holiday)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 font-medium">
+                        <span class="w-3 h-3 rounded-md bg-amber-400 shadow-sm"></span>
+                        <span>No School (Potential Make-Up Day)</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 font-medium">
+                        <span class="w-3 h-3 rounded-md bg-emerald-500 shadow-sm"></span>
+                        <span>First / Last School Day</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 font-medium">
+                        <span class="w-3 h-3 rounded-md bg-indigo-500 shadow-sm"></span>
+                        <span>Report Cards / Grading Period</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 font-medium">
+                        <span class="w-3 h-3 rounded-full ring-2 ring-blue-600 bg-blue-100"></span>
+                        <span>Today (Nov 17, 2026)</span>
+                    </div>
+                </div>
+                <div class="text-slate-400 italic flex items-center gap-1">
+                    <i data-lucide="mouse-pointer-click" class="w-3.5 h-3.5"></i>
+                    <span>Click any highlighted date for details</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW 1: FULL YEAR OVERVIEW (10-MONTH GRID: AUG 2026 - MAY 2027) -->
+        <section id="yearViewContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 animate-fade-in">
+            <!-- Months injected dynamically via JS -->
+        </section>
+
+        <!-- VIEW 2: MONTHLY FOCUS VIEW -->
+        <section id="monthViewContainer" class="hidden animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Large Interactive Month Calendar -->
+                <div class="lg:col-span-8 glass-panel rounded-3xl p-5 sm:p-7">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <button onclick="changeFocusMonth(-1)" id="prevMonthBtn" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors" aria-label="Previous Month">
+                                <i data-lucide="chevron-left" class="w-5 h-5"></i>
+                            </button>
+                            <div>
+                                <h2 id="focusMonthTitle" class="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">
+                                    November 2026
+                                </h2>
+                                <p id="focusMonthStats" class="text-xs sm:text-sm font-medium text-slate-500">
+                                    15 Pupil Days • 6 Student Days Off
+                                </p>
+                            </div>
+                            <button onclick="changeFocusMonth(1)" id="nextMonthBtn" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-40 disabled:pointer-events-none transition-colors" aria-label="Next Month">
+                                <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+
+                        <!-- Quick Month Jump Dropdown -->
+                        <select id="monthJumpSelect" onchange="jumpToMonth(parseInt(this.value))" class="hidden sm:block px-3.5 py-2 rounded-xl bg-slate-100 border border-slate-200 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <option value="0">August 2026</option>
+                            <option value="1">September 2026</option>
+                            <option value="2">October 2026</option>
+                            <option value="3" selected>November 2026</option>
+                            <option value="4">December 2026</option>
+                            <option value="5">January 2027</option>
+                            <option value="6">February 2027</option>
+                            <option value="7">March 2027</option>
+                            <option value="8">April 2027</option>
+                            <option value="9">May 2027</option>
+                        </select>
+                    </div>
+
+                    <!-- Weekday Headers -->
+                    <div class="grid grid-cols-7 gap-2 mb-2 text-center">
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 py-1">Sun</div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 py-1">Mon</div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 py-1">Tue</div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 py-1">Wed</div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 py-1">Thu</div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-600 py-1">Fri</div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-slate-400 py-1">Sat</div>
+                    </div>
+
+                    <!-- Large Calendar Grid -->
+                    <div id="focusMonthGrid" class="grid grid-cols-7 gap-2 sm:gap-2.5">
+                        <!-- Days injected dynamically -->
+                    </div>
+                </div>
+
+                <!-- Right Column: Month Event Feed -->
+                <div class="lg:col-span-4 glass-panel rounded-3xl p-5 sm:p-6 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-display font-bold text-lg text-slate-900 flex items-center gap-2">
+                                <i data-lucide="calendar-days" class="w-5 h-5 text-indigo-600"></i>
+                                <span>Events This Month</span>
+                            </h3>
+                            <span id="focusEventCount" class="px-2.5 py-0.5 text-xs font-bold bg-indigo-50 text-indigo-700 rounded-full">0</span>
+                        </div>
+                        <div id="focusMonthEventsList" class="space-y-3 max-h-[440px] overflow-y-auto pr-1 custom-scrollbar">
+                            <!-- Month events list -->
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-slate-200/80 bg-slate-50/80 rounded-2xl p-3.5 text-xs text-slate-600">
+                        <div class="font-bold text-slate-800 mb-1 flex items-center gap-1.5">
+                            <i data-lucide="info" class="w-4 h-4 text-amber-500"></i>
+                            <span>Emergency Make-Up Notice</span>
+                        </div>
+                        <p>Oct 12, 2026 & Jan 8, 2027 are scheduled as student holidays unless needed to recover lost instructional days.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SLIDE-OVER DRAWER 1: EVENT / DATE DETAILS MODAL -->
+    <div id="detailModalBackdrop" onclick="closeDetailModal()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <aside id="detailModalDrawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col">
+        <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
+            <div class="flex items-center gap-2.5">
+                <div id="modalIconWrapper" class="w-10 h-10 rounded-2xl flex items-center justify-center bg-rose-100 text-rose-600">
+                    <i data-lucide="calendar-heart" class="w-5 h-5"></i>
+                </div>
+                <div>
+                    <span id="modalDateSubtitle" class="text-xs font-bold uppercase tracking-wider text-slate-400">Date Details</span>
+                    <h3 id="modalDateTitle" class="font-display font-extrabold text-xl text-slate-900">November 26, 2026</h3>
+                </div>
+            </div>
+            <button onclick="closeDetailModal()" class="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="modalContentBody" class="p-6 flex-1 overflow-y-auto space-y-4 custom-scrollbar">
+            <!-- Event details injected here -->
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50/80 flex items-center justify-between gap-3">
+            <button id="modalJumpMonthBtn" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm shadow-sm transition-all flex items-center justify-center gap-2">
+                <i data-lucide="zoom-in" class="w-4 h-4"></i>
+                <span>Open in Monthly Focus View</span>
+            </button>
+        </div>
+    </aside>
+
+    <!-- SLIDE-OVER DRAWER 2: QUICK LIST OF ALL DAYS OFF -->
+    <div id="summaryBackdrop" onclick="toggleSummaryDrawer()" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-40 hidden opacity-0 transition-opacity duration-300"></div>
+    <aside id="summaryDrawer" class="fixed top-0 right-0 h-full w-full max-w-lg bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-out flex flex-col">
+        <div class="p-6 border-b border-slate-100 bg-gradient-to-r from-rose-50 to-orange-50/60 flex items-center justify-between">
+            <div>
+                <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-700 mb-1">
+                    <i data-lucide="sun" class="w-3.5 h-3.5"></i>
+                    <span>2026–2027 Student Holidays</span>
+                </div>
+                <h3 class="font-display font-extrabold text-xl text-slate-900">Kids' Days Off Summary</h3>
+                <p class="text-xs text-slate-600 mt-0.5">Click any break below to jump directly to that month</p>
+            </div>
+            <button onclick="toggleSummaryDrawer()" class="p-2 rounded-xl bg-white/80 text-slate-500 hover:text-slate-900 hover:bg-white shadow-xs transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+
+        <div id="summaryListContent" class="p-5 flex-1 overflow-y-auto space-y-3 custom-scrollbar">
+            <!-- Summary cards injected dynamically -->
+        </div>
+
+        <div class="p-4 border-t border-slate-100 bg-slate-50 text-xs text-slate-500 flex items-center justify-between">
+            <span>Total Instructional Pupil Days: <strong class="text-slate-800">180</strong></span>
+            <span>Paid Holidays: <strong class="text-slate-800">6</strong></span>
+        </div>
+    </aside>
+
+    <script>
+        // =========================================================================
+        // 1. ACADEMIC CALENDAR DATA (2026–2027 FOUR CORNERS CHARTER / UPPER SCHOOL)
+        // =========================================================================
+        
+        // Reference "Today" date per current context: Tuesday, November 17, 2026
+        const TODAY_STR = "2026-11-17";
+
+        const MONTHS_CONFIG = [
+            { index: 0, year: 2026, month: 7, name: "August 2026", shortName: "Aug", pupilDays: 16, teacherDays: 21 },
+            { index: 1, year: 2026, month: 8, name: "September 2026", shortName: "Sep", pupilDays: 20, teacherDays: 21 },
+            { index: 2, year: 2026, month: 9, name: "October 2026", shortName: "Oct", pupilDays: 21, teacherDays: 22 },
+            { index: 3, year: 2026, month: 10, name: "November 2026", shortName: "Nov", pupilDays: 15, teacherDays: 15 },
+            { index: 4, year: 2026, month: 11, name: "December 2026", shortName: "Dec", pupilDays: 14, teacherDays: 14 },
+            { index: 5, year: 2027, month: 0, name: "January 2027", shortName: "Jan", pupilDays: 18, teacherDays: 19 },
+            { index: 6, year: 2027, month: 1, name: "February 2027", shortName: "Feb", pupilDays: 19, teacherDays: 19 },
+            { index: 7, year: 2027, month: 2, name: "March 2027", shortName: "Mar", pupilDays: 17, teacherDays: 18 },
+            { index: 8, year: 2027, month: 3, name: "April 2027", shortName: "Apr", pupilDays: 22, teacherDays: 22 },
+            { index: 9, year: 2027, month: 4, name: "May 2027", shortName: "May", pupilDays: 18, teacherDays: 19 }
+        ];
+
+        // Master list of all calendar events
+        // Categories: 'holiday', 'makeup', 'milestone', 'grading'
+        const CALENDAR_EVENTS = [
+            // August 2026
+            { date: "2026-08-10", title: "First Day of School", category: "milestone", noSchool: false, desc: "First Day of School for Students & First Day of 1st Grading Period." },
+
+            // September 2026
+            { date: "2026-09-07", title: "Labor Day", category: "holiday", noSchool: true, breakGroup: "Labor Day", desc: "Student & Teacher Paid Holiday. No school for students." },
+            { date: "2026-09-11", title: "1st Grading Period Progress Reports", category: "grading", noSchool: false, desc: "1st Grading Period Progress Reports issued." },
+            { date: "2026-09-25", title: "Professional Learning / Student Holiday", category: "holiday", noSchool: true, breakGroup: "Sept Professional Learning Day", desc: "Teacher Professional Learning Day. Students have the day off." },
+
+            // October 2026
+            { date: "2026-10-09", title: "End of 1st Grading Period", category: "grading", noSchool: false, desc: "Final day of the 1st Grading Period." },
+            { date: "2026-10-12", title: "Teacher Workday / Potential Make-Up Day", category: "makeup", noSchool: true, breakGroup: "October Teacher Workday (Make-Up Option)", desc: "Scheduled Student Holiday / Teacher Workday. Designated as an Emergency Make-Up Day if needed." },
+            { date: "2026-10-13", title: "First Day of 2nd Grading Period", category: "grading", noSchool: false, desc: "Classes begin for the 2nd Grading Period." },
+            { date: "2026-10-23", title: "1st Grading Period Report Cards", category: "grading", noSchool: false, desc: "Report cards for the 1st Grading Period distributed." },
+
+            // November 2026
+            { date: "2026-11-11", title: "Veterans Day", category: "holiday", noSchool: true, breakGroup: "Veterans Day", desc: "Veterans Day — Student & Teacher Paid Holiday. No school." },
+            { date: "2026-11-13", title: "2nd Grading Period Progress Reports", category: "grading", noSchool: false, desc: "2nd Grading Period Progress Reports issued." },
+            { date: "2026-11-23", title: "Thanksgiving Break (Day 1)", category: "holiday", noSchool: true, breakGroup: "Thanksgiving Break (Nov 23–27)", desc: "Teacher Non-Workday / Student Holiday. Part of full-week Thanksgiving Break." },
+            { date: "2026-11-24", title: "Thanksgiving Break (Day 2)", category: "holiday", noSchool: true, breakGroup: "Thanksgiving Break (Nov 23–27)", desc: "Teacher Non-Workday / Student Holiday." },
+            { date: "2026-11-25", title: "Thanksgiving Break (Day 3)", category: "holiday", noSchool: true, breakGroup: "Thanksgiving Break (Nov 23–27)", desc: "Teacher Non-Workday / Student Holiday." },
+            { date: "2026-11-26", title: "Thanksgiving Day", category: "holiday", noSchool: true, breakGroup: "Thanksgiving Break (Nov 23–27)", desc: "Thanksgiving Paid Holiday — Student & Teacher Holiday." },
+            { date: "2026-11-27", title: "Thanksgiving Break (Day 5)", category: "holiday", noSchool: true, breakGroup: "Thanksgiving Break (Nov 23–27)", desc: "Teacher Non-Workday / Student Holiday. Classes resume Mon, Nov 30." },
+
+            // December 2026 (Winter Break: Dec 21 - Jan 1)
+            { date: "2026-12-21", title: "Winter Break Begins", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-22", title: "Winter Break", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-23", title: "Winter Break", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-24", title: "Winter Break", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-25", title: "Winter Break (Christmas Day)", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-28", title: "Winter Break", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-29", title: "Winter Break", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-30", title: "Winter Break", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+            { date: "2026-12-31", title: "Winter Break (New Year's Eve)", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Winter Break — Student & Teacher Holiday." },
+
+            // January 2027
+            { date: "2027-01-01", title: "Winter Break (New Year's Day)", category: "holiday", noSchool: true, breakGroup: "Winter Break (Dec 21 – Jan 1)", desc: "Final weekday of Winter Break. Classes resume Monday, Jan 4, 2027." },
+            { date: "2027-01-04", title: "Classes Resume", category: "milestone", noSchool: false, desc: "Welcome back! Classes resume following Winter Break." },
+            { date: "2027-01-07", title: "End of 2nd Grading Period", category: "grading", noSchool: false, desc: "Final day of the 2nd Grading Period." },
+            { date: "2027-01-08", title: "Teacher Workday / Potential Make-Up Day", category: "makeup", noSchool: true, breakGroup: "January Teacher Workday (Make-Up Option)", desc: "Scheduled Student Holiday / Teacher Workday. Designated as an Emergency Make-Up Day if needed." },
+            { date: "2027-01-11", title: "First Day of 3rd Grading Period", category: "grading", noSchool: false, desc: "Classes begin for the 3rd Grading Period." },
+            { date: "2027-01-18", title: "Martin Luther King, Jr. Day", category: "holiday", noSchool: true, breakGroup: "Martin Luther King, Jr. Day", desc: "Martin Luther King, Jr. Paid Holiday — Student & Teacher Holiday." },
+            { date: "2027-01-22", title: "2nd Grading Period Report Cards", category: "grading", noSchool: false, desc: "Report cards for the 2nd Grading Period distributed." },
+
+            // February 2027
+            { date: "2027-02-05", title: "3rd Grading Period Progress Reports", category: "grading", noSchool: false, desc: "3rd Grading Period Progress Reports issued." },
+            { date: "2027-02-19", title: "Rodeo Day", category: "holiday", noSchool: true, breakGroup: "Rodeo Day", desc: "Rodeo Day — Teacher Non-Workday / Student Holiday. No school." },
+
+            // March 2027
+            { date: "2027-03-11", title: "End of 3rd Grading Period", category: "grading", noSchool: false, desc: "Final day of the 3rd Grading Period." },
+            { date: "2027-03-12", title: "Teacher Workday / Student Holiday", category: "holiday", noSchool: true, breakGroup: "March Teacher Workday + Spring Break (Mar 12–19)", desc: "Teacher Workday / Student Holiday leading right into Spring Break!" },
+            { date: "2027-03-15", title: "Spring Break (Day 1)", category: "holiday", noSchool: true, breakGroup: "March Teacher Workday + Spring Break (Mar 12–19)", desc: "Spring Break — Student & Teacher Holiday." },
+            { date: "2027-03-16", title: "Spring Break (Day 2)", category: "holiday", noSchool: true, breakGroup: "March Teacher Workday + Spring Break (Mar 12–19)", desc: "Spring Break — Student & Teacher Holiday." },
+            { date: "2027-03-17", title: "Spring Break (Day 3)", category: "holiday", noSchool: true, breakGroup: "March Teacher Workday + Spring Break (Mar 12–19)", desc: "Spring Break — Student & Teacher Holiday." },
+            { date: "2027-03-18", title: "Spring Break (Day 4)", category: "holiday", noSchool: true, breakGroup: "March Teacher Workday + Spring Break (Mar 12–19)", desc: "Spring Break — Student & Teacher Holiday." },
+            { date: "2027-03-19", title: "Spring Break (Day 5)", category: "holiday", noSchool: true, breakGroup: "March Teacher Workday + Spring Break (Mar 12–19)", desc: "Spring Break — Student & Teacher Holiday. Classes resume Mon, Mar 22." },
+            { date: "2027-03-22", title: "Classes Resume / 1st Day of 4th Grading Period", category: "grading", noSchool: false, desc: "Classes resume following Spring Break & 4th Grading Period begins." },
+
+            // April 2027
+            { date: "2027-04-02", title: "3rd Grading Period Report Cards", category: "grading", noSchool: false, desc: "Report cards for the 3rd Grading Period distributed." },
+            { date: "2027-04-23", title: "4th Grading Period Progress Reports", category: "grading", noSchool: false, desc: "4th Grading Period Progress Reports issued." },
+
+            // May 2027
+            { date: "2027-05-26", title: "Last Student Day & End of 4th Grading Period", category: "milestone", noSchool: false, desc: "Last Student Day of the 2026–2027 school year! Elementary 4th Grading Period Report Cards issued." },
+            { date: "2027-05-26", title: "4th Grading Period Report Cards (Elementary)", category: "grading", noSchool: false, desc: "Elementary 4th Grading Period Report Cards distributed on last student day." },
+            { date: "2027-05-27", title: "Summer Break Begins (Teacher Workday)", category: "holiday", noSchool: true, breakGroup: "Summer Break Begins", desc: "Teacher Workday / Last Teacher Day. Summer Break officially starts for students!" }
+        ];
+
+        // Consolidated list of Student Breaks for the "All Days Off" Drawer
+        const STUDENT_BREAKS_SUMMARY = [
+            { title: "Labor Day", dates: "Mon, Sep 7, 2026", daysCount: "1 Day Off", type: "holiday", monthIdx: 1, note: "Paid Holiday" },
+            { title: "Professional Learning Day", dates: "Fri, Sep 25, 2026", daysCount: "1 Day Off", type: "holiday", monthIdx: 1, note: "Student Holiday" },
+            { title: "October Teacher Workday", dates: "Mon, Oct 12, 2026", daysCount: "1 Day Off*", type: "makeup", monthIdx: 2, note: "Emergency Make-Up Day if needed" },
+            { title: "Veterans Day", dates: "Wed, Nov 11, 2026", daysCount: "1 Day Off", type: "holiday", monthIdx: 3, note: "Paid Holiday" },
+            { title: "Thanksgiving Break", dates: "Mon, Nov 23 – Fri, Nov 27, 2026", daysCount: "5 Days Off", type: "holiday", monthIdx: 3, note: "Full week off (9 days w/ weekends)" },
+            { title: "Winter Break", dates: "Mon, Dec 21, 2026 – Fri, Jan 1, 2027", daysCount: "10 Days Off", type: "holiday", monthIdx: 4, note: "Classes resume Mon, Jan 4" },
+            { title: "January Teacher Workday", dates: "Fri, Jan 8, 2027", daysCount: "1 Day Off*", type: "makeup", monthIdx: 5, note: "Emergency Make-Up Day if needed" },
+            { title: "Martin Luther King, Jr. Day", dates: "Mon, Jan 18, 2027", daysCount: "1 Day Off", type: "holiday", monthIdx: 5, note: "Paid Holiday" },
+            { title: "Rodeo Day", dates: "Fri, Feb 19, 2027", daysCount: "1 Day Off", type: "holiday", monthIdx: 6, note: "Student Holiday" },
+            { title: "Teacher Workday", dates: "Fri, Mar 12, 2027", daysCount: "1 Day Off", type: "holiday", monthIdx: 7, note: "Connects directly into Spring Break" },
+            { title: "Spring Break", dates: "Mon, Mar 15 – Fri, Mar 19, 2027", daysCount: "5 Days Off", type: "holiday", monthIdx: 7, note: "Classes resume Mon, Mar 22" },
+            { title: "Summer Break Begins", dates: "Thu, May 27, 2027", daysCount: "Summer!", type: "holiday", monthIdx: 9, note: "Last student day is Wed, May 26" }
+        ];
+
+        // =========================================================================
+        // 2. APPLICATION STATE & HELPERS
+        // =========================================================================
+        let currentView = 'year'; // 'year' or 'month'
+        let currentFilter = 'all'; // 'all', 'holiday', 'makeup', 'milestone', 'grading'
+        let focusMonthIndex = 3; // Default to November 2026 (Current Month)
+
+        // Category Styling Dictionary
+        const CATEGORY_STYLES = {
+            holiday: {
+                bg: "bg-rose-500 text-white shadow-sm shadow-rose-500/25 font-bold",
+                softBg: "bg-rose-50 border-rose-200 text-rose-900",
+                badge: "bg-rose-100 text-rose-700 border-rose-200",
+                dot: "bg-rose-500",
+                label: "No School / Holiday",
+                icon: "sun"
+            },
+            makeup: {
+                bg: "bg-amber-400 text-slate-950 shadow-sm shadow-amber-400/30 font-bold",
+                softBg: "bg-amber-50 border-amber-200 text-amber-950",
+                badge: "bg-amber-100 text-amber-800 border-amber-300",
+                dot: "bg-amber-500",
+                label: "No School (Make-Up Option)",
+                icon: "alert-triangle"
+            },
+            milestone: {
+                bg: "bg-emerald-500 text-white shadow-sm shadow-emerald-500/25 font-bold",
+                softBg: "bg-emerald-50 border-emerald-200 text-emerald-900",
+                badge: "bg-emerald-100 text-emerald-700 border-emerald-200",
+                dot: "bg-emerald-500",
+                label: "School Milestone",
+                icon: "flag"
+            },
+            grading: {
+                bg: "bg-indigo-100 text-indigo-800 border border-indigo-300 font-bold",
+                softBg: "bg-indigo-50/70 border-indigo-200 text-indigo-950",
+                badge: "bg-indigo-100 text-indigo-700 border-indigo-200",
+                dot: "bg-indigo-500",
+                label: "Grading / Report Card",
+                icon: "file-text"
+            }
+        };
+
+        function formatDateISO(year, monthZeroIndexed, day) {
+            const m = String(monthZeroIndexed + 1).padStart(2, '0');
+            const d = String(day).padStart(2, '0');
+            return `${year}-${m}-${d}`;
+        }
+
+        function formatReadableDate(isoStr) {
+            const [y, m, d] = isoStr.split('-').map(Number);
+            const dateObj = new Date(y, m - 1, d);
+            return dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        }
+
+        function getEventsForDate(isoStr) {
+            return CALENDAR_EVENTS.filter(ev => ev.date === isoStr);
+        }
+
+        function getPrimaryCategory(events) {
+            if (!events || events.length === 0) return null;
+            const priority = ['holiday', 'makeup', 'milestone', 'grading'];
+            for (const p of priority) {
+                if (events.some(e => e.category === p)) return p;
+            }
+            return events[0].category;
+        }
+
+        // =========================================================================
+        // 3. COUNTDOWN & SUMMARY DRAWER RENDERING
+        // =========================================================================
+        function initCountdown() {
+            const [ty, tm, td] = TODAY_STR.split('-').map(Number);
+            const todayDate = new Date(ty, tm - 1, td);
+
+            // Find next upcoming holiday/makeup break
+            const upcoming = CALENDAR_EVENTS
+                .filter(ev => (ev.category === 'holiday' || ev.category === 'makeup') && ev.date >= TODAY_STR)
+                .sort((a, b) => a.date.localeCompare(b.date))[0];
+
+            if (upcoming) {
+                const [uy, um, ud] = upcoming.date.split('-').map(Number);
+                const nextDate = new Date(uy, um - 1, ud);
+                const diffDays = Math.round((nextDate - todayDate) / (1000 * 60 * 60 * 24));
+                
+                document.getElementById('countdownTitle').textContent = upcoming.breakGroup || upcoming.title;
+                document.getElementById('countdownDays').textContent = diffDays;
+            }
+        }
+
+        function renderSummaryList() {
+            const container = document.getElementById('summaryListContent');
+            container.innerHTML = STUDENT_BREAKS_SUMMARY.map((item, idx) => {
+                const isMakeup = item.type === 'makeup';
+                const cardStyle = isMakeup 
+                    ? 'border-amber-200 bg-amber-50/50 hover:bg-amber-50' 
+                    : 'border-rose-100 bg-white hover:border-rose-300 hover:bg-rose-50/40';
+                const badgeStyle = isMakeup
+                    ? 'bg-amber-100 text-amber-800 border-amber-300'
+                    : 'bg-rose-100 text-rose-700 border-rose-200';
+
+                return `
+                    <div onclick="jumpFromSummary(${item.monthIdx})" 
+                         class="group cursor-pointer p-4 rounded-2xl border ${cardStyle} transition-all duration-200 shadow-xs hover:shadow-md flex items-center justify-between gap-3">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="font-display font-bold text-slate-900 group-hover:text-rose-700 transition-colors">
+                                    ${item.title}
+                                </span>
+                            </div>
+                            <div class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                                <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                                <span>${item.dates}</span>
+                            </div>
+                            <div class="text-[11px] text-slate-500 mt-1">${item.note}</div>
+                        </div>
+                        <div class="flex flex-col items-end shrink-0 gap-1.5">
+                            <span class="px-2.5 py-1 rounded-xl text-xs font-bold border ${badgeStyle}">
+                                ${item.daysCount}
+                            </span>
+                            <span class="text-[11px] font-semibold text-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
+                                View <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                            </span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        // =========================================================================
+        // 4. FULL YEAR OVERVIEW RENDERER (10 MONTHS)
+        // =========================================================================
+        function renderYearView() {
+            const container = document.getElementById('yearViewContainer');
+            container.innerHTML = MONTHS_CONFIG.map((mConfig, idx) => {
+                const firstDayWeekday = new Date(mConfig.year, mConfig.month, 1).getDay();
+                const daysInMonth = new Date(mConfig.year, mConfig.month + 1, 0).getDate();
+
+                // Count student days off in this month
+                const monthPrefix = `${mConfig.year}-${String(mConfig.month + 1).padStart(2, '0')}`;
+                const offDaysCount = CALENDAR_EVENTS.filter(e => e.date.startsWith(monthPrefix) && (e.category === 'holiday' || e.category === 'makeup')).length;
+
+                let cellsHTML = '';
+                // Empty leading cells
+                for (let i = 0; i < firstDayWeekday; i++) {
+                    cellsHTML += `<div class="empty-cell h-8 w-8"></div>`;
+                }
+
+                // Actual days
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const iso = formatDateISO(mConfig.year, mConfig.month, d);
+                    const dayEvents = getEventsForDate(iso);
+                    const isToday = iso === TODAY_STR;
+
+                    // Filter matching check
+                    const matchingEvents = currentFilter === 'all' 
+                        ? dayEvents 
+                        : dayEvents.filter(e => e.category === currentFilter);
+
+                    const primaryCat = getPrimaryCategory(matchingEvents);
+                    let cellClasses = "day-cell h-8 w-8 mx-auto rounded-xl flex items-center justify-center text-xs relative select-none ";
+                    
+                    if (primaryCat) {
+                        cellClasses += `${CATEGORY_STYLES[primaryCat].bg} cursor-pointer `;
+                    } else if (dayEvents.length > 0 && currentFilter !== 'all') {
+                        // Dimmed when filtered out
+                        cellClasses += "text-slate-300 cursor-pointer ";
+                    } else {
+                        const weekday = new Date(mConfig.year, mConfig.month, d).getDay();
+                        const isWeekend = weekday === 0 || weekday === 6;
+                        cellClasses += isWeekend ? "text-slate-400 font-normal " : "text-slate-700 font-medium hover:bg-slate-100 ";
+                    }
+
+                    if (isToday) {
+                        cellClasses += "ring-2 ring-blue-600 ring-offset-2 today-indicator font-extrabold ";
+                    }
+
+                    // Multi-event dot indicator
+                    const multiDot = matchingEvents.length > 1 
+                        ? `<span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-slate-900 border border-white"></span>` 
+                        : '';
+
+                    const clickAttr = dayEvents.length > 0 ? `onclick="openDateModal('${iso}')"` : '';
+                    const titleAttr = dayEvents.length > 0 ? `title="${dayEvents.map(e => e.title).join(' • ')}"` : '';
+
+                    cellsHTML += `
+                        <div ${clickAttr} ${titleAttr} class="${cellClasses}">
+                            ${d}
+                            ${multiDot}
+                        </div>
+                    `;
+                }
+
+                const offBadge = offDaysCount > 0 
+                    ? `<span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-600 border border-rose-200/70">${offDaysCount} Off</span>`
+                    : `<span class="px-2 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-500">Full Month</span>`;
+
+                return `
+                    <article class="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col justify-between hover:shadow-xl transition-shadow duration-300" style="animation-delay: ${idx * 35}ms">
+                        <div>
+                            <div class="flex items-center justify-between mb-3 pb-2.5 border-b border-slate-100">
+                                <button onclick="jumpToMonth(${mConfig.index}); switchView('month')" class="font-display font-extrabold text-base text-slate-900 hover:text-indigo-600 transition-colors flex items-center gap-1.5 group">
+                                    <span>${mConfig.name}</span>
+                                    <i data-lucide="arrow-up-right" class="w-3.5 h-3.5 text-slate-400 group-hover:text-indigo-600 transition-colors"></i>
+                                </button>
+                                ${offBadge}
+                            </div>
+
+                            <!-- Mini Weekday Header -->
+                            <div class="grid grid-cols-7 gap-1 text-center mb-1.5">
+                                <span class="text-[10px] font-bold text-slate-400">S</span>
+                                <span class="text-[10px] font-bold text-slate-500">M</span>
+                                <span class="text-[10px] font-bold text-slate-500">T</span>
+                                <span class="text-[10px] font-bold text-slate-500">W</span>
+                                <span class="text-[10px] font-bold text-slate-500">T</span>
+                                <span class="text-[10px] font-bold text-slate-500">F</span>
+                                <span class="text-[10px] font-bold text-slate-400">S</span>
+                            </div>
+
+                            <!-- Mini Days Grid -->
+                            <div class="grid grid-cols-7 gap-y-1.5 gap-x-0.5 text-center">
+                                ${cellsHTML}
+                            </div>
+                        </div>
+
+                        <div class="mt-3.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                            <span>${mConfig.pupilDays} Pupil Days</span>
+                            <button onclick="jumpToMonth(${mConfig.index}); switchView('month')" class="text-indigo-600 hover:underline font-semibold">
+                                Details &rarr;
+                            </button>
+                        </div>
+                    </article>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        // =========================================================================
+        // 5. MONTHLY FOCUS VIEW RENDERER
+        // =========================================================================
+        function renderMonthFocusView() {
+            const mConfig = MONTHS_CONFIG[focusMonthIndex];
+            document.getElementById('focusMonthTitle').textContent = mConfig.name;
+            document.getElementById('monthJumpSelect').value = focusMonthIndex;
+
+            // Update prev/next buttons
+            document.getElementById('prevMonthBtn').disabled = focusMonthIndex === 0;
+            document.getElementById('nextMonthBtn').disabled = focusMonthIndex === MONTHS_CONFIG.length - 1;
+
+            const monthPrefix = `${mConfig.year}-${String(mConfig.month + 1).padStart(2, '0')}`;
+            const monthEvents = CALENDAR_EVENTS.filter(e => e.date.startsWith(monthPrefix));
+            const offDaysCount = monthEvents.filter(e => e.category === 'holiday' || e.category === 'makeup').length;
+
+            document.getElementById('focusMonthStats').textContent = 
+                `${mConfig.pupilDays} Pupil Days • ${offDaysCount} Student Day${offDaysCount === 1 ? '' : 's'} Off`;
+
+            const firstDayWeekday = new Date(mConfig.year, mConfig.month, 1).getDay();
+            const daysInMonth = new Date(mConfig.year, mConfig.month + 1, 0).getDate();
+
+            let gridHTML = '';
+            for (let i = 0; i < firstDayWeekday; i++) {
+                gridHTML += `<div class="empty-cell min-h-[76px] sm:min-h-[92px] rounded-2xl bg-slate-50/40 border border-slate-100/60"></div>`;
+            }
+
+            for (let d = 1; d <= daysInMonth; d++) {
+                const iso = formatDateISO(mConfig.year, mConfig.month, d);
+                const dayEvents = getEventsForDate(iso);
+                const isToday = iso === TODAY_STR;
+
+                const matchingEvents = currentFilter === 'all'
+                    ? dayEvents
+                    : dayEvents.filter(e => e.category === currentFilter);
+
+                const primaryCat = getPrimaryCategory(matchingEvents);
+                const weekday = new Date(mConfig.year, mConfig.month, d).getDay();
+                const isWeekend = weekday === 0 || weekday === 6;
+
+                let cellBg = isWeekend ? "bg-slate-50/70 border-slate-200/50" : "bg-white border-slate-200/80";
+                let numColor = isWeekend ? "text-slate-400" : "text-slate-700";
+
+                if (primaryCat) {
+                    cellBg = `${CATEGORY_STYLES[primaryCat].softBg} border shadow-xs cursor-pointer`;
+                    numColor = "text-slate-900 font-extrabold";
+                } else if (dayEvents.length > 0) {
+                    cellBg = "bg-white border-slate-200/80 cursor-pointer opacity-60";
+                }
+
+                if (isToday) {
+                    cellBg += " ring-2 ring-blue-600 today-indicator";
+                }
+
+                const badgesHTML = matchingEvents.map(ev => {
+                    const st = CATEGORY_STYLES[ev.category];
+                    return `
+                        <div class="mt-1 px-1.5 py-0.5 rounded-md text-[10px] sm:text-[11px] font-semibold leading-tight truncate border ${st.badge}">
+                            ${ev.title}
+                        </div>
+                    `;
+                }).join('');
+
+                const todayPill = isToday 
+                    ? `<span class="px-1.5 py-0.2 rounded-full bg-blue-600 text-white text-[9px] font-bold uppercase tracking-wide">Today</span>` 
+                    : '';
+
+                const clickAttr = dayEvents.length > 0 ? `onclick="openDateModal('${iso}')"` : '';
+
+                gridHTML += `
+                    <div ${clickAttr} class="day-cell min-h-[76px] sm:min-h-[92px] p-1.5 sm:p-2 rounded-2xl border ${cellBg} flex flex-col justify-between overflow-hidden">
+                        <div class="flex items-center justify-between gap-1">
+                            <span class="text-xs sm:text-sm font-bold ${numColor}">${d}</span>
+                            ${todayPill}
+                        </div>
+                        <div class="mt-auto">
+                            ${badgesHTML}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('focusMonthGrid').innerHTML = gridHTML;
+
+            // Render Right-hand Event List
+            const filteredMonthEvents = currentFilter === 'all'
+                ? monthEvents
+                : monthEvents.filter(e => e.category === currentFilter);
+
+            document.getElementById('focusEventCount').textContent = filteredMonthEvents.length;
+            const listContainer = document.getElementById('focusMonthEventsList');
+
+            if (filteredMonthEvents.length === 0) {
+                listContainer.innerHTML = `
+                    <div class="text-center py-10 px-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200">
+                        <i data-lucide="calendar-check" class="w-8 h-8 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-600">No matching events in ${mConfig.name}</p>
+                        <p class="text-xs text-slate-400 mt-1">Try switching the filter pill above to "All Events".</p>
+                    </div>
+                `;
+            } else {
+                listContainer.innerHTML = filteredMonthEvents.map(ev => {
+                    const st = CATEGORY_STYLES[ev.category];
+                    const dateShort = new Date(ev.date + "T00:00:00").toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    return `
+                        <div onclick="openDateModal('${ev.date}')" class="cursor-pointer p-3.5 rounded-2xl border ${st.softBg} hover:shadow-md transition-all">
+                            <div class="flex items-center justify-between gap-2 mb-1">
+                                <span class="text-xs font-bold uppercase tracking-wider opacity-80">${dateShort}</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border ${st.badge}">${st.label}</span>
+                            </div>
+                            <h4 class="font-display font-bold text-sm text-slate-900">${ev.title}</h4>
+                            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${ev.desc}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            lucide.createIcons();
+        }
+
+        // =========================================================================
+        // 6. INTERACTIONS, FILTERS & DRAWERS
+        // =========================================================================
+        function switchView(view) {
+            currentView = view;
+            const yearContainer = document.getElementById('yearViewContainer');
+            const monthContainer = document.getElementById('monthViewContainer');
+            const btnYear = document.getElementById('btnFullYear');
+            const btnMonth = document.getElementById('btnMonthly');
+
+            if (view === 'year') {
+                yearContainer.classList.remove('hidden');
+                monthContainer.classList.add('hidden');
+                btnYear.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-white text-slate-900 shadow-sm";
+                btnMonth.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900";
+                renderYearView();
+            } else {
+                yearContainer.classList.add('hidden');
+                monthContainer.classList.remove('hidden');
+                btnMonth.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 bg-white text-slate-900 shadow-sm";
+                btnYear.className = "flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900";
+                renderMonthFocusView();
+            }
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-pill').forEach(pill => {
+                if (pill.dataset.filter === filter) {
+                    pill.className = "filter-pill active-pill shrink-0 flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-slate-900 text-white shadow-sm";
+                } else {
+                    pill.className = "filter-pill shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-white text-slate-700 border border-slate-200 hover:bg-slate-50";
+                }
+            });
+
+            if (currentView === 'year') renderYearView();
+            else renderMonthFocusView();
+        }
+
+        function changeFocusMonth(delta) {
+            const nextIdx = focusMonthIndex + delta;
+            if (nextIdx >= 0 && nextIdx < MONTHS_CONFIG.length) {
+                focusMonthIndex = nextIdx;
+                renderMonthFocusView();
+            }
+        }
+
+        function jumpToMonth(idx) {
+            focusMonthIndex = idx;
+            if (currentView === 'month') {
+                renderMonthFocusView();
+            }
+        }
+
+        function jumpFromSummary(monthIdx) {
+            toggleSummaryDrawer();
+            jumpToMonth(monthIdx);
+            switchView('month');
+        }
+
+        // Date Details Slide-Over Modal
+        function openDateModal(isoStr) {
+            const events = getEventsForDate(isoStr);
+            if (!events.length) return;
+
+            const primaryCat = getPrimaryCategory(events);
+            const st = CATEGORY_STYLES[primaryCat];
+
+            document.getElementById('modalDateTitle').textContent = formatReadableDate(isoStr);
+            document.getElementById('modalDateSubtitle').textContent = events.some(e => e.noSchool) ? "NO SCHOOL FOR STUDENTS" : "ACADEMIC CALENDAR EVENT";
+
+            const iconWrap = document.getElementById('modalIconWrapper');
+            iconWrap.className = `w-11 h-11 rounded-2xl flex items-center justify-center border ${st.badge}`;
+            iconWrap.innerHTML = `<i data-lucide="${st.icon}" class="w-5 h-5"></i>`;
+
+            const body = document.getElementById('modalContentBody');
+            body.innerHTML = events.map(ev => {
+                const evSt = CATEGORY_STYLES[ev.category];
+                return `
+                    <div class="p-4 rounded-2xl border ${evSt.softBg} space-y-2">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${evSt.badge}">
+                                ${evSt.label}
+                            </span>
+                            ${ev.noSchool ? '<span class="text-xs font-extrabold text-rose-600 uppercase">Kids Off School</span>' : ''}
+                        </div>
+                        <h4 class="font-display font-bold text-lg text-slate-900">${ev.title}</h4>
+                        <p class="text-sm text-slate-700 leading-relaxed">${ev.desc}</p>
+                        ${ev.breakGroup ? `
+                            <div class="pt-2 mt-2 border-t border-black/5 text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                                <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                                <span>Break Period: ${ev.breakGroup}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            // Configure Jump to Month button
+            const [y, m] = isoStr.split('-').map(Number);
+            const mIdx = MONTHS_CONFIG.findIndex(mc => mc.year === y && mc.month === (m - 1));
+            const jumpBtn = document.getElementById('modalJumpMonthBtn');
+            jumpBtn.onclick = () => {
+                closeDetailModal();
+                if (mIdx !== -1) {
+                    jumpToMonth(mIdx);
+                    switchView('month');
+                }
+            };
+
+            const backdrop = document.getElementById('detailModalBackdrop');
+            const drawer = document.getElementById('detailModalDrawer');
+            backdrop.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                backdrop.classList.remove('opacity-0');
+                drawer.classList.remove('translate-x-full');
+            });
+
+            lucide.createIcons();
+        }
+
+        function closeDetailModal() {
+            const backdrop = document.getElementById('detailModalBackdrop');
+            const drawer = document.getElementById('detailModalDrawer');
+            backdrop.classList.add('opacity-0');
+            drawer.classList.add('translate-x-full');
+            setTimeout(() => {
+                backdrop.classList.add('hidden');
+            }, 300);
+        }
+
+        // Summary Drawer Toggle
+        let isSummaryOpen = false;
+        function toggleSummaryDrawer() {
+            isSummaryOpen = !isSummaryOpen;
+            const backdrop = document.getElementById('summaryBackdrop');
+            const drawer = document.getElementById('summaryDrawer');
+
+            if (isSummaryOpen) {
+                backdrop.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    backdrop.classList.remove('opacity-0');
+                    drawer.classList.remove('translate-x-full');
+                });
+            } else {
+                backdrop.classList.add('opacity-0');
+                drawer.classList.add('translate-x-full');
+                setTimeout(() => {
+                    backdrop.classList.add('hidden');
+                }, 300);
+            }
+        }
+
+        // =========================================================================
+        // 7. INITIALIZE APPLICATION ON LOAD
+        // =========================================================================
+        window.addEventListener('DOMContentLoaded', () => {
+            initCountdown();
+            renderSummaryList();
+            renderYearView();
+            lucide.createIcons();
+        });
+    </script>
+</body>
+</html>
